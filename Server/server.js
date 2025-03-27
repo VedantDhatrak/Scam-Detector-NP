@@ -113,8 +113,6 @@
 
 
 
-
-
 const WebSocket = require("ws");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -142,7 +140,7 @@ console.log("WebSocket server running on ws://localhost:8080");
 
 // Available images (assuming they are stored in /assets/)
 const IMAGE_BASE_PATH = "/assets/";
-const IMAGE_LIST = Array.from({ length: 10 }, (_, i) => `${IMAGE_BASE_PATH}${i + 1}.jpg`);
+const IMAGE_LIST = Array.from({ length: 30 }, (_, i) => `${IMAGE_BASE_PATH}${i + 1}.jpg`);
 
 server.on("connection", async (ws) => {
   console.log("Client connected");
@@ -155,92 +153,53 @@ server.on("connection", async (ws) => {
         const { userID, count } = data;
         const selectedImages = IMAGE_LIST.slice(0, count);
 
-
         const newRequest = await PendingRequest.create({
           userID,
-          query : data.query,
-          // images: selectedImages.slice(index),
+          query: data.query,
+          images: []
         });
-        
-        
+
         const lastInsertedId = newRequest._id;
         console.log("Last Inserted ID:", lastInsertedId);
-        
+
         let index = 0;
         const sendNextImage = async () => {
           if (index < selectedImages.length && ws.readyState === WebSocket.OPEN) {
-            // debugg uncommented this 
-            ws.send(JSON.stringify({ 
-              image: selectedImages[index] 
+            const selectedImageSingle = selectedImages[index];
+
+            // Send the image in real-time to the frontend's live container
+            ws.send(JSON.stringify({
+              type: "live_image",
+              image: selectedImageSingle
             }));
-            
-           let  selectedImageSingle =selectedImages[index]
-            await PendingRequest.findOneAndUpdate(
+
+            // Store the image in the database
+            await PendingRequest.findByIdAndUpdate(
               lastInsertedId,
-              // { $push: { images: { $each: selectedImageSingle } } },
-              { $push: { images: selectedImageSingle } }, // Push single string to array
+              { $push: { images: selectedImageSingle } },
               { upsert: true }
             );
-            console.log("selected slice index", selectedImages[index])
-            console.log("data added", selectedImages[index]);
+
+            console.log("Sent live image:", selectedImageSingle);
             index++;
-            setTimeout(sendNextImage, 5000); // 2-second delay for the next image
-          } else {
-            // If client disconnects, store remaining images in MongoDB
-            if (index < selectedImages.length) {
-              // debugg uncommeted this 
-              await PendingRequest.findOneAndUpdate(
-                lastInsertedId,
-                // { $push: { images: { $each: selectedImageSingle } } },
-                { $push: { images: selectedImageSingle } }, // Push single string to array
-                { upsert: true }
-              );
-              console.log(`Stored ${selectedImages.length - index} images for user ${userID}`);
-            }
+            setTimeout(sendNextImage, 5000); // Delay of 5 seconds for the next image
           }
         };
 
         sendNextImage();
       }
 
-      // if (data.type === "reconnect") {
-      //   const { userID } = data;
-      //   const pendingRequest = await PendingRequest.findOne({ userID });
-
-      //   if (pendingRequest) {
-      //     console.log(`User ${userID} reconnected, sending pending images...`);
-      //     let index = 0;
-      //     const sendPendingImages = async () => {
-      //       if (index < pendingRequest.images.length && ws.readyState === WebSocket.OPEN) {
-      //         ws.send(JSON.stringify({ image: pendingRequest.images[index] }));
-      //         index++;
-      //         setTimeout(sendPendingImages, 2000);
-      //       } else {
-      //         // await PendingRequest.deleteOne({ userID }); // Clear pending requests
-      //         console.log(`Pending images for user ${userID} sent and cleared.`);
-      //       }
-      //     };
-
-      //     sendPendingImages();
-      //   }
-      // }
       if (data.type === "reconnect") {
         const { userID } = data;
         const pendingRequests = await PendingRequest.find({ userID });
-      
+
         if (pendingRequests.length > 0) {
-          // console.log(`User ${userID} reconnected, sending all pending images...`);
-      
-          // Collect all images from multiple pending request documents
-          const allImages = pendingRequests.flatMap(req => req.images);
-      
-          // Send all images at once
+          console.log(`User ${userID} reconnected, sending all pending images...`);
+
+          // Send all previous requests to frontend
           ws.send(JSON.stringify({ allTask: pendingRequests }));
-      
-          // Optionally, clear the pending requests after sending
-          // await PendingRequest.deleteMany({ userID });
-      
-          // console.log(`All pending images for user ${userID} sent and cleared.`);
+
+          console.log(`All pending images for user ${userID} sent.`);
         }
       }
       
@@ -254,6 +213,7 @@ server.on("connection", async (ws) => {
     console.log("Client disconnected");
   });
 });
+
 
 
  

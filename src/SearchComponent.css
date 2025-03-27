@@ -87,9 +87,10 @@
     margin-top: 20px;
   }
   
-  .task-card {
-    background: #bbb9b9;
+  .task {
+    background: #909090;
     padding: 15px;
+    width: 80vw;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
@@ -126,6 +127,123 @@
   
   .image:hover {
     transform: scale(1.1);
+  }
+/* 
+  .container {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+  } */
+  
+  .live-container {
+    min-height: 20vh;
+    /* width: 100vw; */
+    min-width: 80vw;
+    border: 2px dashed #007bff;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #a3a3a3;
+    border-radius: 8px;
+  }
+  
+  .live-image {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    border-radius: 5px;
+  }
+  
+  .search-bar {
+    margin-bottom: 20px;
+    /* width: 80vw; */
+  }
+  
+  .search-input, .count-input {
+    padding: 5px;
+    margin-right: 10px;
+  }
+  
+  .search-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* .data-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #bbb9b9;
+  } */
+  
+  .task {
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+  }
+  
+  .task-images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .image {
+    width: 150px;
+    height: 150px;
+    margin: 5px;
+    border-radius: 5px;
+  }
+
+  .next-button{
+    padding: 5px 10px;
+    background-color: #06a80e;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .image-container {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  .live-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .image-card {
+    width: 100px;
+    height: 100px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    position: absolute;
+  }
+  
+  .right-side {
+    left: 120px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+  }
+  
+  /* Spinner (Loader) Inside the Image Card */
+  .loader {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   
   
